@@ -44,19 +44,27 @@ jobs:
           docker push potharaju0412/netflix:latest
 
   deploy:
-    name: Deploy and Scan Image
-    needs: build-analyze-scan
-    runs-on: ubuntu-latest
+  name: Deploy and Scan Image
+  needs: build-analyze-scan
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Pull the Docker image
-        run: docker pull potharaju0412/netflix:latest
+  steps:
+    - name: Install Trivy
+      run: |
+        sudo apt-get install wget apt-transport-https gnupg lsb-release -y
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy -y
 
-      - name: Trivy image scan
-        run: trivy image potharaju0412/netflix:latest
+    - name: Pull the Docker image
+      run: docker pull potharaju0412/netflix:latest
 
-      - name: Run the Netflix container
-        run: |
-          docker stop netflix || true
-          docker rm netflix || true
-          docker run -d --name netflix -p 8081:80 potharaju0412/netflix:latest
+    - name: Trivy image scan
+      run: trivy image potharaju0412/netflix:latest
+
+    - name: Run the Netflix container
+      run: |
+        docker stop netflix || true
+        docker rm netflix || true
+        docker run -d --name netflix -p 8081:80 potharaju0412/netflix:latest
