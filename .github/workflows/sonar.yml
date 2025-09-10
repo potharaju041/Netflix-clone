@@ -46,7 +46,7 @@ jobs:
         run: |
           docker build --build-arg TMDB_V3_API_KEY=${{ secrets.TMDB_V3_API_KEY }} -t netflix .
           docker tag netflix /netflix:latest
-          docker push siva3103/netflix:latest
+          docker push potharaju0412/netflix:latest
 
   deploy:
     name: Deploy and Scan Image
