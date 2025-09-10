@@ -47,3 +47,13 @@ jobs:
           docker build --build-arg TMDB_V3_API_KEY=6e4115a0ecbfcc96978f1556ba120fd6 -t netflix .
           docker tag netflix potharaju0412/netflix:latest
           docker push potharaju0412/netflix:latest
+  deploy:
+      needs: build-analyze-scan
+      runs-on: [netflix]
+      steps:
+        - name: Pull the docker image
+          run: docker pull potharaju0412/netflix:latest
+        - name: Trivy image scan
+          run: trivy image potharaju0412/netflix:latest
+        - name: Run the container netflix
+          run: docker run -d --name netflix -p 8081:80 potharaju0412/netflix:latest
