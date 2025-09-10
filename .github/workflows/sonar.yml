@@ -11,20 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # Step 2: SonarQube Analysis
       - name: Build and analyze with SonarQube
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      # Step 3: Install Trivy
       - name: Install Trivy
         run: |
           sudo apt-get install wget apt-transport-https gnupg lsb-release -y
@@ -34,34 +31,30 @@ jobs:
           sudo apt-get install trivy -y
           trivy fs .
 
-      # Step 4: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Step 5: Build and Push Docker Image
       - name: Build and Push Docker image
         run: |
           docker build --build-arg TMDB_V3_API_KEY=6e4115a0ecbfcc96978f1556ba120fd6 -t netflix .
           docker tag netflix potharaju0412/netflix:latest
           docker push potharaju0412/netflix:latest
+
   deploy:
     name: Deploy and Scan Image
     needs: build-analyze-scan
-    runs-on: [netflix]   # <-- must match your self-hosted runner label
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 6.1: Pull Docker image
       - name: Pull the Docker image
         run: docker pull potharaju0412/netflix:latest
 
-      # Step 6.2: Scan image with Trivy
       - name: Trivy image scan
         run: trivy image potharaju0412/netflix:latest
 
-      # Step 6.3: Run container
       - name: Run the Netflix container
         run: |
           docker stop netflix || true
