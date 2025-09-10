@@ -29,9 +29,30 @@ jobs:
           trivy fs .
       - name: Docker build and push
         run: |
-          docker build --build-arg TMDB_V3_API_KEY=6e4115a0ecbfcc96978f1556ba120fd6 -t netflix .
-          docker tag netflix potharaju0412/netflix01:latest
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-          docker push potharaju0412/netflix01:latest
-          env:
-            DOCKER_CLI_ACI: 1
+           steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # Step 3: Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg TMDB_V3_API_KEY=6e4115a0ecbfcc96978f1556ba120fd6 \
+            -t netflix .
+         # Step 4: Tag image for Docker Hub
+      - name: Tag Docker image
+        run: |
+          docker tag netflix potharaju0412/netflix:latest
+
+      # Step 5: Push image to Docker Hub
+      - name: Push Docker image
+        run: |
+          docker push potharaju0412/netflix:latest
