@@ -29,9 +29,9 @@ jobs:
           trivy fs .
       - name: Docker build and push
         run: |
-          docker build --build-arg TMDB_V3_API_KEY=9fa82d8308d60ca048b7a2aa6e12f165 -t netflix .
-          docker tag netflix potharaju0412/netflix:latest
+          docker build --build-arg TMDB_V3_API_KEY=6e4115a0ecbfcc96978f1556ba120fd6 -t netflix .
+          docker tag netflix potharaju0412/netflix01:latest
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-          docker push potharaju0412/netflix:latest
+          docker push potharaju0412/netflix01:latest
           env:
             DOCKER_CLI_ACI: 1
