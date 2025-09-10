@@ -48,12 +48,22 @@ jobs:
           docker tag netflix potharaju0412/netflix:latest
           docker push potharaju0412/netflix:latest
   deploy:
-      needs: build-analyze-scan
-      runs-on: [netflix]
-      steps:
-        - name: Pull the docker image
-          run: docker pull potharaju0412/netflix:latest
-        - name: Trivy image scan
-          run: trivy image potharaju0412/netflix:latest
-        - name: Run the container netflix
-          run: docker run -d --name netflix -p 8081:80 potharaju0412/netflix:latest
+    name: Deploy and Scan Image
+    needs: build-analyze-scan
+    runs-on: [netflix]   # <-- must match your self-hosted runner label
+
+    steps:
+      # Step 6.1: Pull Docker image
+      - name: Pull the Docker image
+        run: docker pull potharaju0412/netflix:latest
+
+      # Step 6.2: Scan image with Trivy
+      - name: Trivy image scan
+        run: trivy image potharaju0412/netflix:latest
+
+      # Step 6.3: Run container
+      - name: Run the Netflix container
+        run: |
+          docker stop netflix || true
+          docker rm netflix || true
+          docker run -d --name netflix -p 8081:80 potharaju0412/netflix:latest
