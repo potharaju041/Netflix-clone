@@ -24,9 +24,9 @@ jobs:
       - name: Docker build and push
         run: |
           docker build --build-arg TMDB_V3_API_KEY=6e4115a0ecbfcc96978f1556ba120fd6 -t netflix .
-          docker tag netflix potharaju0412/netflix:latest
+          docker tag netflix potharaju0412/netflix01:latest
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push potharaju0412/netflix:latest
+          docker push potharaju0412/netflix01:latest
 
   deploy:
     name: Deploy
@@ -34,7 +34,7 @@ jobs:
     runs-on: [netflix]
     steps:
       - name: Pull the Docker image
-        run: docker pull potharaju0412/netflix:latest
+        run: docker pull potharaju0412/netflix01:latest
 
       - name: Install Trivy
         run: |
@@ -46,7 +46,7 @@ jobs:
           sudo apt-get install trivy -y
 
       - name: Run Trivy Scan on Docker image
-        run: trivy image potharaju0412/netflix:latest
+        run: trivy image potharaju0412/netflix01:latest
 
       - name: Run the Netflix container
-        run: docker run -d --name netflix -p 8081:80 potharaju0412/netflix:latest
+        run: docker run -d --name netflix -p 8081:80 potharaju0412/netflix01:latest
